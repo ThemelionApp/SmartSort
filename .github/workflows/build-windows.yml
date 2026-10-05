@@ -2,34 +2,22 @@ name: Build SmartSort Windows EXE
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Build standalone Windows executable
-        run: >
-          dotnet publish SmartSort.csproj
-          -c Release
-          -r win-x64
-          --self-contained true
-          -p:PublishSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:DebugType=None
-          -p:DebugSymbols=false
-          -o publish
-
-      - name: Upload SmartSort
+      - name: Publish self-contained single EXE
+        run: dotnet publish SmartSort.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o publish
+      - name: Upload portable app
         uses: actions/upload-artifact@v4
         with:
           name: SmartSort-Windows-x64
           path: publish/SmartSort.exe
+          if-no-files-found: error
