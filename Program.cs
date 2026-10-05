@@ -84,12 +84,12 @@ public sealed class MainForm : Form
     public MainForm(string? initialPath)
     {
         Text = "SmartSort";
-        Width = 1240;
-        Height = 820;
-        MinimumSize = new Size(1040, 700);
+        Width = 1160;
+        Height = 760;
+        MinimumSize = new Size(900, 620);
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Segoe UI", 10F);
-        BackColor = _bg;
+        BackColor = _surface;
         ForeColor = _text;
         AutoScaleMode = AutoScaleMode.Dpi;
 
@@ -103,157 +103,178 @@ public sealed class MainForm : Form
 
     private void BuildDashboard(string defaultPath)
     {
+        SuspendLayout();
+
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 5,
-            Padding = new Padding(28, 22, 28, 24),
-            BackColor = _bg
+            Padding = new Padding(22, 18, 22, 18),
+            BackColor = _surface
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 118));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 74));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 66));
 
-        var header = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = _bg };
+        // Compact header: deliberately closer to the original prototype.
+        var header = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = _surface };
         header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200));
+        header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 315));
+        header.Controls.Add(new Label
+        {
+            Text = "SmartSort",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI Semibold", 19F),
+            ForeColor = _text,
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 0);
+        header.Controls.Add(new Label
+        {
+            Text = "Preview first  •  Nothing moves until Sort",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 9.5F),
+            ForeColor = _muted,
+            TextAlign = ContentAlignment.MiddleRight
+        }, 1, 0);
 
-        var titleStack = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, BackColor = _bg, Padding = new Padding(0, 2, 0, 0) };
-        titleStack.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
-        titleStack.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
-        titleStack.Controls.Add(new Label { Text = "SmartSort", Dock = DockStyle.Fill, Font = new Font("Segoe UI Semibold", 20F), ForeColor = _text, TextAlign = ContentAlignment.BottomLeft }, 0, 0);
-        titleStack.Controls.Add(new Label { Text = "Clean up a chaotic folder without losing control.", Dock = DockStyle.Fill, Font = new Font("Segoe UI", 10F), ForeColor = _muted, TextAlign = ContentAlignment.TopLeft }, 0, 1);
-        header.Controls.Add(titleStack, 0, 0);
-
-        _undo.Text = "↶  Undo last sort";
-        StyleSecondaryButton(_undo);
-        _undo.Dock = DockStyle.Fill;
-        _undo.Margin = new Padding(16, 10, 0, 12);
-        header.Controls.Add(_undo, 1, 0);
-
-        var folderCard = MakeCard();
-        var folderLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 2, Padding = new Padding(18, 12, 18, 12), BackColor = _surface };
-        folderLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        folderLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
-        folderLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
-        folderLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
-        folderLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        // One obvious folder/action bar.
+        var folderBar = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 4,
+            Padding = new Padding(0, 7, 0, 7),
+            BackColor = _surface
+        };
+        folderBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 54));
+        folderBar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        folderBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 104));
+        folderBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 126));
+        folderBar.Controls.Add(new Label
+        {
+            Text = "Folder",
+            Dock = DockStyle.Fill,
+            ForeColor = _muted,
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 0);
 
         _folder.Text = defaultPath;
-        _folder.BorderStyle = BorderStyle.FixedSingle;
         _folder.Dock = DockStyle.Fill;
-        _folder.Font = new Font("Segoe UI", 11F);
-        _folder.Margin = new Padding(0, 2, 12, 4);
-        folderLayout.Controls.Add(_folder, 0, 0);
+        _folder.Font = new Font("Segoe UI", 10.5F);
+        _folder.BorderStyle = BorderStyle.FixedSingle;
+        _folder.Margin = new Padding(0, 0, 10, 0);
+        folderBar.Controls.Add(_folder, 1, 0);
 
         _browse.Text = "Browse";
         StyleSecondaryButton(_browse);
         _browse.Dock = DockStyle.Fill;
-        _browse.Margin = new Padding(0, 0, 10, 4);
-        folderLayout.Controls.Add(_browse, 1, 0);
+        _browse.Margin = new Padding(0, 0, 10, 0);
+        folderBar.Controls.Add(_browse, 2, 0);
 
         _scan.Text = "Scan folder";
         StylePrimaryButton(_scan);
         _scan.Dock = DockStyle.Fill;
-        _scan.Margin = new Padding(0, 0, 0, 4);
-        folderLayout.Controls.Add(_scan, 2, 0);
+        folderBar.Controls.Add(_scan, 3, 0);
 
-        _folderMeta.Text = "Nothing moves until you press Sort.";
-        _folderMeta.ForeColor = _muted;
-        _folderMeta.Dock = DockStyle.Fill;
-        _folderMeta.TextAlign = ContentAlignment.MiddleLeft;
-        folderLayout.SetColumnSpan(_folderMeta, 3);
-        folderLayout.Controls.Add(_folderMeta, 0, 1);
-        folderCard.Controls.Add(folderLayout);
+        // Dense stats strip instead of dashboard cards.
+        var stats = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 4,
+            BackColor = Color.FromArgb(247, 248, 250),
+            Padding = new Padding(10, 5, 10, 5),
+            Margin = new Padding(0, 2, 0, 10),
+            CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
+        };
+        for (var i = 0; i < 4; i++) stats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+        stats.Controls.Add(MakeStat("Items", _itemsValue, _text), 0, 0);
+        stats.Controls.Add(MakeStat("Ready", _autoValue, _success), 1, 0);
+        stats.Controls.Add(MakeStat("Review", _reviewValue, _warning), 2, 0);
+        stats.Controls.Add(MakeStat("Duplicates", _dupesValue, _danger), 3, 0);
 
-        var cards = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, BackColor = _bg, Padding = new Padding(0, 14, 0, 4) };
-        for (var i = 0; i < 4; i++) cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-        cards.Controls.Add(MakeMetricCard("Items scanned", _itemsValue, _text), 0, 0);
-        cards.Controls.Add(MakeMetricCard("Ready to sort", _autoValue, _success), 1, 0);
-        cards.Controls.Add(MakeMetricCard("Needs review", _reviewValue, _warning), 2, 0);
-        cards.Controls.Add(MakeMetricCard("Duplicates", _dupesValue, _danger), 3, 0);
-
-        var previewCard = MakeCard();
-        var previewLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, Padding = new Padding(18, 12, 18, 14), BackColor = _surface };
-        previewLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
-        previewLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-
-        var previewHeader = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, BackColor = _surface };
-        previewHeader.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        previewHeader.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 250));
-        previewHeader.Controls.Add(new Label { Text = "Preview", Dock = DockStyle.Fill, Font = new Font("Segoe UI Semibold", 12F), ForeColor = _text, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
-        previewHeader.Controls.Add(new Label { Text = "Destination is shown before anything moves", Dock = DockStyle.Fill, ForeColor = _muted, TextAlign = ContentAlignment.MiddleRight }, 1, 0);
-        previewLayout.Controls.Add(previewHeader, 0, 0);
-
+        // The preview is the screen, not a card inside the screen.
         ConfigureGrid();
-        previewLayout.Controls.Add(_grid, 0, 1);
-        previewCard.Controls.Add(previewLayout);
+        _grid.Margin = new Padding(0, 0, 0, 10);
 
-        var footer = MakeCard();
-        var footerLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, Padding = new Padding(18, 12, 18, 12), BackColor = _surface };
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 190));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 12));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+        var footer = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 5,
+            BackColor = _surface,
+            Padding = new Padding(0, 10, 0, 0)
+        };
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170));
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 14));
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 172));
 
         _status.Text = "Choose a folder and scan it.";
         _status.Dock = DockStyle.Fill;
         _status.ForeColor = _muted;
         _status.TextAlign = ContentAlignment.MiddleLeft;
         _status.AutoEllipsis = true;
-        footerLayout.Controls.Add(_status, 0, 0);
+        footer.Controls.Add(_status, 0, 0);
 
         _progress.Dock = DockStyle.Fill;
         _progress.Minimum = 0;
         _progress.Maximum = 100;
-        _progress.Margin = new Padding(10, 11, 10, 11);
-        footerLayout.Controls.Add(_progress, 1, 0);
+        _progress.Margin = new Padding(8, 13, 8, 13);
+        footer.Controls.Add(_progress, 1, 0);
 
-        _sort.Text = "Sort files";
+        _undo.Text = "Undo last sort";
+        StyleSecondaryButton(_undo);
+        _undo.Dock = DockStyle.Fill;
+        footer.Controls.Add(_undo, 3, 0);
+
+        _sort.Text = "SORT FILES";
         StylePrimaryButton(_sort);
         _sort.Dock = DockStyle.Fill;
         _sort.Enabled = false;
-        footerLayout.Controls.Add(_sort, 3, 0);
-        footer.Controls.Add(footerLayout);
+        _sort.Font = new Font("Segoe UI Semibold", 10.5F);
+        footer.Controls.Add(_sort, 4, 0);
+
+        // Retain this internal label because the sort engine updates it, but keep it off-screen.
+        _folderMeta.Visible = false;
 
         root.Controls.Add(header, 0, 0);
-        root.Controls.Add(folderCard, 0, 1);
-        root.Controls.Add(cards, 0, 2);
-        root.Controls.Add(previewCard, 0, 3);
+        root.Controls.Add(folderBar, 0, 1);
+        root.Controls.Add(stats, 0, 2);
+        root.Controls.Add(_grid, 0, 3);
         root.Controls.Add(footer, 0, 4);
         Controls.Add(root);
+
+        ResumeLayout(true);
     }
 
-    private Panel MakeCard()
+    private Control MakeStat(string title, Label value, Color valueColor)
     {
-        return new Panel
+        var panel = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            BackColor = _surface,
-            Margin = new Padding(0),
-            BorderStyle = BorderStyle.FixedSingle
+            ColumnCount = 2,
+            BackColor = Color.FromArgb(247, 248, 250),
+            Padding = new Padding(10, 0, 10, 0)
         };
-    }
-
-    private Control MakeMetricCard(string title, Label value, Color valueColor)
-    {
-        var card = MakeCard();
-        card.Margin = new Padding(0, 0, 12, 0);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, Padding = new Padding(16, 12, 16, 10), BackColor = _surface };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 25));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.Controls.Add(new Label { Text = title, Dock = DockStyle.Fill, ForeColor = _muted, Font = new Font("Segoe UI", 9.5F), TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 62));
+        panel.Controls.Add(new Label
+        {
+            Text = title,
+            Dock = DockStyle.Fill,
+            ForeColor = _muted,
+            Font = new Font("Segoe UI", 9.5F),
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 0);
         value.Text = "—";
         value.Dock = DockStyle.Fill;
         value.ForeColor = valueColor;
-        value.Font = new Font("Segoe UI Semibold", 21F);
-        value.TextAlign = ContentAlignment.MiddleLeft;
-        layout.Controls.Add(value, 0, 1);
-        card.Controls.Add(layout);
-        return card;
+        value.Font = new Font("Segoe UI Semibold", 12F);
+        value.TextAlign = ContentAlignment.MiddleRight;
+        panel.Controls.Add(value, 1, 0);
+        return panel;
     }
 
     private void ConfigureGrid()
@@ -266,54 +287,62 @@ public sealed class MainForm : Form
         _grid.MultiSelect = false;
         _grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         _grid.RowHeadersVisible = false;
-        _grid.BackgroundColor = _surface;
-        _grid.BorderStyle = BorderStyle.None;
-        _grid.GridColor = _border;
+        _grid.BackgroundColor = Color.White;
+        _grid.BorderStyle = BorderStyle.FixedSingle;
+        _grid.GridColor = Color.FromArgb(232, 234, 238);
         _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         _grid.ColumnHeadersHeight = 38;
-        _grid.RowTemplate.Height = 36;
+        _grid.RowTemplate.Height = 34;
         _grid.EnableHeadersVisualStyles = false;
-        _grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(249, 250, 252);
-        _grid.ColumnHeadersDefaultCellStyle.ForeColor = _muted;
+        _grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(244, 246, 248);
+        _grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(82, 88, 98);
         _grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9F);
-        _grid.DefaultCellStyle.BackColor = _surface;
+        _grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(244, 246, 248);
+        _grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(82, 88, 98);
+        _grid.DefaultCellStyle.BackColor = Color.White;
         _grid.DefaultCellStyle.ForeColor = _text;
-        _grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(232, 240, 255);
+        _grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(230, 239, 255);
         _grid.DefaultCellStyle.SelectionForeColor = _text;
         _grid.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
-        _grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(252, 252, 253);
+        _grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
 
+        _grid.Columns.Clear();
         _grid.Columns.Add("Name", "File / folder");
         _grid.Columns.Add("Category", "Destination");
-        _grid.Columns.Add("Confidence", "Confidence");
-        _grid.Columns.Add("Reason", "Why");
-        _grid.Columns[0].FillWeight = 33;
-        _grid.Columns[1].FillWeight = 31;
-        _grid.Columns[2].FillWeight = 13;
-        _grid.Columns[3].FillWeight = 23;
+        _grid.Columns.Add("Confidence", "Status");
+        _grid.Columns.Add("Reason", "Reason");
+        _grid.Columns[0].FillWeight = 34;
+        _grid.Columns[1].FillWeight = 32;
+        _grid.Columns[2].FillWeight = 12;
+        _grid.Columns[3].FillWeight = 22;
     }
 
     private void StylePrimaryButton(Button button)
     {
         button.FlatStyle = FlatStyle.Flat;
         button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(17, 93, 211);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(13, 78, 181);
         button.BackColor = _accent;
         button.ForeColor = Color.White;
         button.Font = new Font("Segoe UI Semibold", 10F);
         button.Cursor = Cursors.Hand;
         button.UseVisualStyleBackColor = false;
+        button.MinimumSize = new Size(90, 36);
     }
 
     private void StyleSecondaryButton(Button button)
     {
         button.FlatStyle = FlatStyle.Flat;
-        button.FlatAppearance.BorderColor = _border;
+        button.FlatAppearance.BorderColor = Color.FromArgb(207, 211, 217);
         button.FlatAppearance.BorderSize = 1;
-        button.BackColor = _surface;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(245, 246, 248);
+        button.BackColor = Color.White;
         button.ForeColor = _text;
-        button.Font = new Font("Segoe UI Semibold", 10F);
+        button.Font = new Font("Segoe UI Semibold", 9.5F);
         button.Cursor = Cursors.Hand;
         button.UseVisualStyleBackColor = false;
+        button.MinimumSize = new Size(90, 36);
     }
 
     private void WireEvents()

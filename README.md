@@ -21,3 +21,7 @@ The produced `SmartSort.exe` is self-contained. End users do **not** need Python
 
 ## Drag-and-drop
 You can drag a folder onto `SmartSort.exe`; the app opens using that folder as the target.
+
+
+## v0.4 interface
+Compact utility layout inspired by the original prototype: folder bar, dense stats strip, full-size preview table, and permanently visible Undo / Sort actions.
