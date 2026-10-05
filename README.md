@@ -1,27 +1,37 @@
-# SmartSort
+# SmartSort v0.5
 
-Portable Windows file/folder sorter.
+SmartSort is a preview-first Windows file organizer.
 
-## End-user build
-The produced `SmartSort.exe` is self-contained. End users do **not** need Python, .NET, an installer, or admin rights.
+## New in v0.5
 
-## Build with GitHub Actions
-1. Put these files in a GitHub repository.
-2. Open **Actions** -> **Build SmartSort Windows EXE** -> **Run workflow**.
-3. Download the `SmartSort-Windows-x64` artifact.
-4. Extract `SmartSort.exe` and run it on any Windows 10/11 x64 PC.
+- Editable sorting rules from the new **Rules** button.
+- Users can create, delete, and modify destination folders.
+- Each rule supports:
+  - Destination folder
+  - Filename keywords
+  - File extensions
+  - Confidence level
+- Adjustable Ready/Review threshold.
+- Duplicate detection can be enabled or disabled.
+- Temporary-download quarantine can be enabled or disabled.
+- Rules persist per Windows user in `%APPDATA%\SmartSort\settings.json`.
+- Preview now shows:
+  - File/folder name
+  - Extension/type
+  - Size
+  - Modified date/time
+  - Destination
+  - Ready/Review status
+  - Matching reason
+- Folder sizes are calculated recursively when possible.
+- Sorting remains reversible via **Undo last sort**.
 
-## Safety
-- Preview-first.
-- No permanent deletion.
-- Exact duplicates are moved to `Delete Candidates\\Duplicates`.
-- Low-confidence items go to `00 - Review`.
-- Every sort creates an undo history JSON file.
-- SmartSort ignores its own output folders on repeat scans.
+## Build
 
-## Drag-and-drop
-You can drag a folder onto `SmartSort.exe`; the app opens using that folder as the target.
+Publish as a self-contained single Windows executable:
 
+```powershell
+dotnet publish SmartSort.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o publish
+```
 
-## v0.4 interface
-Compact utility layout inspired by the original prototype: folder bar, dense stats strip, full-size preview table, and permanently visible Undo / Sort actions.
+The result is `publish\SmartSort.exe`.
